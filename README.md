@@ -3,7 +3,7 @@
 ## Create kind cluster
 
 ```bash
-kind create cluster --name myproject --config config.yaml
+kind create cluster --name myproject --config kind/config.yaml
 ```
 
 ## Add bitnami repo
@@ -27,7 +27,7 @@ kubectl create namespace redis
 ### Testing
 
 ```bash
-helm install myproject-redis bitnami/redis-cluster --namespace redis --values Redis/values.yaml
+helm install myproject-redis bitnami/redis-cluster --namespace redis --values redis/values.yaml
 ```
 
 ```txt
@@ -59,7 +59,7 @@ redis-cli -c -h myproject-redis-redis-cluster -a $REDIS_PASSWORD
 ### Production
 
 ```bash
-helm install myproject-redis bitnami/redis-cluster --values values-production.yaml --namespace redis --values Redis/values-prduction.yaml
+helm install myproject-redis bitnami/redis-cluster --values values-production.yaml --namespace redis --values redis/values-prduction.yaml
 ```
 
 ## Postgres
@@ -75,7 +75,7 @@ kubectl create namespace postgres
 ### Testing
 
 ```bash
-helm install myproject-postgres bitnami/postgresql-ha --namespace postgres --values Postgres/values.yaml
+helm install myproject-postgres bitnami/postgresql-ha --namespace postgres --values postgres/values.yaml
 ```
 
 ```txt
@@ -116,7 +116,7 @@ To connect to your database from outside the cluster execute the following comma
 ### Production
 
 ```bash
-helm install myproject-postgres bitnami/postgresql-ha --namespace postgres --values Postgres/values-production.yaml
+helm install myproject-postgres bitnami/postgresql-ha --namespace postgres --values postgres/values-production.yaml
 ```
 
 ## Crunchy (Postgres Operator)
@@ -129,7 +129,7 @@ https://github.com/CrunchyData/postgres-operator
 kubectl create namespace pgo
 kubectl apply -f Crunchy/postgres-operator.yaml -n pgo
 # When operator ready, launch the following command!
-./Crunchy/client-setup.sh
+./crunchy/client-setup.sh
 
 
 # Add env vars to be added to .bashrc or .zshrc
@@ -201,7 +201,7 @@ kubectl create namespace prometheus
 ### Testing
 
 ```bash
-helm install myproject-postgres bitnami/kube-prometheus --namespace prometheus --values Prometheus/values.yaml
+helm install myproject-postgres bitnami/kube-prometheus --namespace prometheus --values prometheus/values.yaml
 ```
 
 ```txt
@@ -249,7 +249,7 @@ To access Alertmanager from outside the cluster execute the following commands:
 ### Production
 
 ```bash
-helm install myproject-postgres bitnami/kube-prometheus --namespace prometheus --values Prometheus/values-production.yaml
+helm install myproject-postgres bitnami/kube-prometheus --namespace prometheus --values prometheus/values-production.yaml
 ```
 
 ## Strimzi
@@ -265,9 +265,9 @@ kubectl create namespace kafka
 ### Installation
 
 ```bash
-kubectl apply -n kafka -f Strimzi/strimzi-cluster-operator.yaml
-kubectl apply -n kafka -f Strimzi/kafka-persistent.yaml:
-kubectl apply -n kafka -f Strimzi/topics.yaml
+kubectl apply -n kafka -f strimzi/strimzi-cluster-operator.yaml
+kubectl apply -n kafka -f strimzi/kafka-persistent.yaml:
+kubectl apply -n kafka -f strimzi/topics.yaml
 ```
 
 ## Kafka
@@ -281,7 +281,7 @@ kubectl create namespace kafka
 ### Testing
 
 ```bash
-helm install myproject-kafka bitnami/kafka --namespace kafka --values Kafka/values.yaml
+helm install myproject-kafka bitnami/kafka --namespace kafka --values kafka/values.yaml
 ```
 
 ```txt
@@ -324,7 +324,7 @@ To create a pod that you can use as a Kafka client run the following commands:
 ### Production
 
 ```bash
-helm install myproject-kafka bitnami/kafka --namespace kafka --values Kafka/values-production.yaml
+helm install myproject-kafka bitnami/kafka --namespace kafka --values kafka/values-production.yaml
 ```
 
 Output:
@@ -391,7 +391,7 @@ To create a pod that you can use as a Kafka client run the following commands:
 ```
 
 ```bash
-cat > Kafka/kafka_jaas.conf <<EOF
+cat > kafka/kafka_jaas.conf <<EOF
 KafkaClient {
 org.apache.kafka.common.security.scram.ScramLoginModule required
 username="user"
@@ -401,15 +401,15 @@ EOF
 
     - client.properties:
 
-cat > Kafka/client.properties <<EOF
+cat > kafka/client.properties <<EOF
 security.protocol=SASL_PLAINTEXT
 sasl.mechanism=SCRAM-SHA-256
 EOF
 
 
 kubectl run myproject-kafka-client --restart='Never' --image docker.io/bitnami/kafka:2.7.0-debian-10-r1 --namespace kafka --command -- sleep infinity
-kubectl cp --namespace kafka Kafka/client.properties myproject-kafka-client:/tmp/client.properties
-kubectl cp --namespace kafka Kafka/kafka_jaas.conf myproject-kafka-client:/tmp/kafka_jaas.conf
+kubectl cp --namespace kafka kafka/client.properties myproject-kafka-client:/tmp/client.properties
+kubectl cp --namespace kafka kafka/kafka_jaas.conf myproject-kafka-client:/tmp/kafka_jaas.conf
 kubectl exec --tty -i myproject-kafka-client --namespace kafka -- bash
 export KAFKA_OPTS="-Djava.security.auth.login.config=/tmp/kafka_jaas.conf"
 # CREATE TOPIC
