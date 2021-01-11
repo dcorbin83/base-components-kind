@@ -9,6 +9,7 @@ kind create cluster --name myproject --config kind/config.yaml
 ## Add bitnami repo
 
 ```bash
+curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 helm search repo bitnami
